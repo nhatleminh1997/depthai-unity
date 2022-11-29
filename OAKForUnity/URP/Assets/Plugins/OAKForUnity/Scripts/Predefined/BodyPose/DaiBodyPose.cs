@@ -61,6 +61,8 @@ namespace OAKForUnity
         private const bool GETPreview = true;
         private const bool UseDepth = true;
 
+        private float count_joints = 0;
+
         [Header("Body Pose Results")] 
         public Texture2D colorTexture;
         public string bodyPoseResults;
@@ -156,6 +158,7 @@ namespace OAKForUnity
                 bodyPoseResults = Marshal.PtrToStringAnsi(BodyPoseResults(out frameInfo, GETPreview, 300, 300, UseDepth, drawBodyPoseInPreview, bodyLandmarkThreshold, retrieveSystemInformation,
                     useIMU,
                     (int) device.deviceNum));
+                
             }
             // if replay read results from file
             else
@@ -210,7 +213,9 @@ namespace OAKForUnity
             var arr = json["landmarks"];
 
             for (int i = 0; i<17; i++) landmarks[i] = Vector3.zero;
-            
+            //
+            count_joints = 0;
+            //
             foreach(JSONNode obj in arr)
             {
                 int index = -1;
@@ -233,8 +238,12 @@ namespace OAKForUnity
                         skeleton[index].SetActive(true);
                         skeleton[index].transform.position = landmarks[index];
                     }
+                    count_joints = count_joints + 1;
                 }
             }
+
+            if (count_joints> 15)
+            {Debug.Log(bodyPoseResults);}
 
             bool allZero = true;
             for (int i=0; i<17; i++)
